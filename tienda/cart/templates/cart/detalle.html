@@ -1,0 +1,62 @@
+{% extends "shop/base.html" %}
+{% load static %}
+
+{% block title %}
+Tu carrito de compra
+{% endblock %}
+
+{% block content %}
+<h1>Tu carrito de compra</h1>
+<table class="cart">
+    <thead>
+        <tr>
+            <th>Imagen</th>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Remover</th>
+            <th>Precio Unitario</th>
+            <th>Precio</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in cart %}
+            {% with producto=item.producto %}
+            <tr>
+                <td>
+                    <a href="{{ producto.get_absolute_url }}">
+                        <img src="{% if producto.imagen %}{{ producto.imagen.url }}
+                        {% else %}{% static "img/no_imagen.png" %}{% endif %}">
+                    </a>
+                </td>
+                <td>{{ producto.nombre }}</td>
+                <td>
+                    <form action="{% url "cart:cart_agregar" producto.id %}" method="post">
+                    {{ item.update_quantity_form.cantidad }}
+                    {{ item.update_quantity_form.anular }}
+                    <input type="submit" value="Actualizar">
+                    {% csrf_token %}
+                    </form>
+                </td>
+                <td>
+                    <form action="{% url "cart:cart_remover" producto.id %}" method="post">
+                        <input type="submit" value="Remover">
+                        {% csrf_token %}
+                    </form>
+                </td>
+                <td class="num">${{ item.precio }}</td>
+                <td class="num">${{ item.total_precio }}</td>
+            </tr>
+            {% endwith %}
+        {% endfor %}
+        <tr class="total">
+            <td>Total</td>
+            <td colspan="4"></td>
+            <td class="num">${{ cart.get_total_precio }}</td>
+        </tr>
+    </tbody>
+</table>
+<p class="text-right">
+    <a href="{% url "shop:producto_lista" %}" class="button light">Seguir comprando</a>
+    <a href="{% url "orders:orden_create" %}" class="button">Verificar pedido</a>
+</p>
+{% endblock %}
